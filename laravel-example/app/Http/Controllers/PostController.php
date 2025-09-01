@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StorePostRequest;
 use App\Traits\ApiResponse;
 use Illuminate\Http\Request;
 use App\Models\Post;
@@ -24,12 +25,12 @@ class PostController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StorePostRequest $request)
     {
         // $newPost = Post::create($request->only(['title','content','status'])); // Simplemente inserta sin validaciones, ni comparacion, ni actualizacion
-        $newPost = Post::updateOrCreate(
-            ['title'  => $request->title], // las columnas parwa la validacion
-            $request->only(['title','content','status'])); // las columnas para reistrar o actualizar
+        $data = $request->validated();
+        
+        $newPost = Post::create($data); // las columnas para reistrar o actualizar
         return $this->ok("Todo melo basuras", [$newPost]);
 
         //
