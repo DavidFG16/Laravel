@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StorePostRequest;
+use App\Http\Requests\UpdatePostRequest;
+use Illuminate\Support\Facades\Storage;
 use App\Traits\ApiResponse;
 use Illuminate\Http\Request;
 use App\Models\Post;
@@ -29,8 +31,17 @@ class PostController extends Controller
     {
         // $newPost = Post::create($request->only(['title','content','status'])); // Simplemente inserta sin validaciones, ni comparacion, ni actualizacion
         $data = $request->validated();
+
+        if($request->hasFile('cover_image')){
+            $data['cover_image'] = $request->file('cover_image')->store('posts', 'public');
+        }
         
         $newPost = Post::create($data); // las columnas para reistrar o actualizar
+
+        if(!empty($data['category_ids'])){
+            $newPost->categories()->sync($data['category_ids']);
+        }
+
         return $this->ok("Todo melo basuras", [$newPost]);
 
         //
@@ -52,16 +63,36 @@ class PostController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(UpdatePostRequest $request, Post $post)
     {
-        //
+        $data = $request->validated();
+
+        if($request->hasFile('vocer_image')){
+            // Borrado (Opcional)
+            if($post->cover_image){
+                storage::disk('public')->delete($Post-cover_image);
+            }
+             $data['cover_image'] = $request->file('cover_image')->store('posts', 'public');
+        }
+
+        $post->update($data);
+        if(\array_key_exists('category_ids', $data)){
+            $post->categories()->sync($data['category_ids'] ?? []);
+        }
+        return $this->ok('Todo melo perro', [$post]);
+
+
     }
+
+
 
     /**
      * Remove the specified resource from storage.
      */
     public function destroy(string $id)
     {
-        //
+        $post->delete(); // Soft Delete
+        /// return response()->noContent
+        return $this->ok('Todo eliminadooooooooo', [$post]);
     }
 }
