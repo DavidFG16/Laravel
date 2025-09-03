@@ -8,6 +8,8 @@ use Illuminate\Support\Facades\Storage;
 use App\Traits\ApiResponse;
 use Illuminate\Http\Request;
 use App\Models\Post;
+use Illuminate\Http\JsonResponse;
+use App\Http\Resources\PostResource;
 // TODO: Eliminar
 use Illuminate\Support\Facades\DB;
 
@@ -17,17 +19,20 @@ class PostController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index():JsonResponse
     {
         // La mala practica porque tenemos un Model.
         // return response()->json(DB::table("posts")->get());
-        return $this->ok("Todo ok, como dijo el Pibeee", Post::get());
+        $posts = Post::with('categories')->get();
+
+
+        return $this->success(PostResource::collection($posts));
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StorePostRequest $request)
+    public function store(StorePostRequest $request):JsonResponse
     {
         // $newPost = Post::create($request->only(['title','content','status'])); // Simplemente inserta sin validaciones, ni comparacion, ni actualizacion
         $data = $request->validated();
@@ -42,7 +47,7 @@ class PostController extends Controller
             $newPost->categories()->sync($data['category_ids']);
         }
 
-        return $this->ok("Todo melo basuras", [$newPost]);
+        return $this->success(new PostResource($newPost), 'Post creado correctamente', 201);
 
         //
     }
@@ -50,49 +55,53 @@ class PostController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show(string $id):JsonResponse
     {
         $result = Post::find($id);
         if ($result){
-            return $this->ok("Todo ok, como dijo el Pibeee", $result);
+            return $this->success(new PostResource($result),"Todo ok, como dijo el Pibeee");
         } else{
-            return $this->success("Todo mal, como NO dijo el Pibeee", [], 404);
+            return $this->error("Todo mal, como NO dijo el Pibeee", 404, ['id'=> 'no se encontro el recurso con el id']);
         }
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdatePostRequest $request, Post $post)
+    public function update(UpdatePostRequest $request, Post $post):JsonResponse
     {
+        
         $data = $request->validated();
 
-        if($request->hasFile('vocer_image')){
+        if($request->hasFile('cover_image')){
             // Borrado (Opcional)
             if($post->cover_image){
-                storage::disk('public')->delete($Post-cover_image);
+                storage::disk('public')->delete($post->cover_image);
             }
              $data['cover_image'] = $request->file('cover_image')->store('posts', 'public');
         }
 
         $post->update($data);
-        if(\array_key_exists('category_ids', $data)){
+        if(array_key_exists('category_ids', $data)){
             $post->categories()->sync($data['category_ids'] ?? []);
         }
-        return $this->ok('Todo melo perro', [$post]);
+        return $this->success(new PostController($post));
 
 
     }
-
-
-
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(Post $post):JsonResponse
     {
         $post->delete(); // Soft Delete
         /// return response()->noContent
-        return $this->ok('Todo eliminadooooooooo', [$post]);
+        return $this->success(null, 'Post eliminado', 204);
+    }
+
+    public function restore(int $id): JsonResponse{
+        $post = Post::onlyTrashed()->findOrFail($id);
+        $post->restore();
+        return $this->success($post, 'Post restaurado correctamente');
     }
 }
