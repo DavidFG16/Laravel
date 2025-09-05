@@ -12,6 +12,7 @@ use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
 use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
 use Symfony\Component\HttpKernel\Exception\TooManyRequestsHttpException;
 use App\Http\Middleware\ForceJsonResponse;
+use App\Http\Middleware\RoleMiddleware;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -21,9 +22,15 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
-        $middleware->appendToGroup('api',[
-            ForceJsonResponse::class
+        
+        $middleware->alias([
+            'role' => RoleMiddleware::class,
         ]);
+
+        $middleware->appendToGroup('api', [
+            ForceJsonResponse::class,
+        ]);
+
     })
     ->withExceptions(function (Exceptions $exceptions) {
         $exceptions->shouldRenderJsonWhen(
@@ -94,12 +101,12 @@ return Application::configure(basePath: dirname(__DIR__))
         });
 
         //Generico
-        $exceptions->render(function (\Throwable $e, $request){
-            $status = $e instanceof HttpExceptionInterface ? $e->getStatusCode() : 500;
-            return response()->json([
-                'status' => 'error',
-                'message' => $status === 500 ? 'Error interno del servidor' : $e->getMessage(),
-                'errors' => ['exception', $e],
-            ]);
-        });
+        // $exceptions->render(function (\Throwable $e, $request){
+        //     $status = $e instanceof HttpExceptionInterface ? $e->getStatusCode() : 500;
+        //     return response()->json([
+        //         'status' => 'error',
+        //         'message' => $status === 500 ? 'Error interno del servidor' : $e->getMessage(),
+        //         'errors' => ['exception', $e],
+        //     ]);
+        // });
     })->create();
