@@ -2,51 +2,46 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Role;
+use App\Models\User;
 use App\Traits\ApiResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
-use App\Models\User;
-use App\Models\Role;
-
+use Illuminate\Support\Facades\Hash;
 
 class AuthController extends Controller
 {
-
     use ApiResponse;
 
     function login(Request $request)
     {
-        $request->validate([
+        $data = $request->validate([
             'email' => 'required|email',
             'password' => 'required|string|min:8',
         ]);
-
-        if(!Auth::attempt($request->only('email', 'password'))){
-            return $this->error('Credenciales Invalidas', 401);
+        //!Auth::attempt($data)
+        if (!Auth::attempt($request->only('email', 'password'))) {
+            return $this->error('Credenciales invalidas', 401);
         }
-        return $this->success("hellow Camper!");
-        
+
         $user = $request->user();
-        
-        $tokenResult = $user->createToken('api-token', ['post.read', 'post.write']);
+
+        $tokenResult = $user->createToken('api-token', ['posts.read', 'posts.write']);
 
         $token = $tokenResult->accessToken;
-
 
         return $this->success([
             'token_type' => 'Bearer',
             'access_token' => $token,
-            'user'=>[
+            'user' => [
                 'email' => $user->email,
-                'roles' =>$roles->roles()->pluck('name')
+                'roles' => $user->roles()->pluck('name'),
             ]
         ]);
     }
-        
+
     function signup(Request $request)
     {
-
         $data = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
@@ -54,25 +49,25 @@ class AuthController extends Controller
         ]);
 
         $user = User::create([
-            'name'=> $data['name'],
+            'name' => $data['name'],
             'email' => $data['email'],
             'password' => Hash::make($data['password']),
         ]);
 
         $defaultRole = Role::where('name', 'viewer')->first();
-        if($defaultRole){
+        if ($defaultRole) {
             $user->roles()->syncWithoutDetaching([$defaultRole->id]);
         }
-        return $this->success($user->load('roles'), 'Usuario creado Correctamente', 201);
+        return $this->success($user->load('roles'), 'Usuario creado correctamente', 201);
     }
 
     function me(Request $request)
     {
-        return $this->success("hellow Camper!");
+        return $this->success("Hellou Camper!");
     }
 
     function logout(Request $request)
     {
-        return $this->success("hellow Camper!");
+        return $this->success("Hellou Camper!");
     }
 }

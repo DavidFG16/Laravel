@@ -7,6 +7,8 @@ use Illuminate\Validation\ValidationException;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Laravel\Passport\Http\Middleware\CheckToken;
+use Laravel\Passport\Http\Middleware\CheckTokenForAnyScope;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
 use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
@@ -25,6 +27,8 @@ return Application::configure(basePath: dirname(__DIR__))
         
         $middleware->alias([
             'role' => RoleMiddleware::class,
+            'scopes' =>CheckToken::class, // Todos
+            'scope' => CheckTokenForAnyScope::class, //Alguno
         ]);
 
         $middleware->appendToGroup('api', [

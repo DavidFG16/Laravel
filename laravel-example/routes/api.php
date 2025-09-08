@@ -6,7 +6,7 @@ use App\Http\Controllers\BlogController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/health', fn()=>['ok' =>true])->withoutMiddleware(['auth:api', 'role']);
+Route::get('/health', fn()=>['ok' =>true])->withoutMiddleware(['auth:api', 'scopes:posts.read']);
 
 Route::prefix('posts')->group(function (){
     Route::middleware(['throttle:api', 'auth:api', 'scopes:posts.read', 'role:viewer,editor,admin'])->group(function(){
