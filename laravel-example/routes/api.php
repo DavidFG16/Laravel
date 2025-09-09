@@ -6,19 +6,23 @@ use App\Http\Controllers\BlogController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/health', fn()=>['ok' =>true])->withoutMiddleware(['auth:api', 'scopes:posts.read']);
+Route::get('/health', fn()=>['ok' =>true]);
+Route::get('/health-any-auth', fn()=>['ok' =>true])->middleware(['auth:api', 'can:view-health']);
+Route::get('/health-admin', fn()=>['ok' =>true])->middleware(['auth:api', 'can:view-health-admin']);
 
 Route::prefix('posts')->group(function (){
-    Route::middleware(['throttle:api', 'auth:api', 'scopes:posts.read', 'role:viewer,editor,admin'])->group(function(){
+    Route::middleware(['throttle:api', 'auth:api', 'role:viewer,editor,admin'])->group(function(){
         Route::get('/', [PostController::class, 'index']);
-        Route::get('{posts}', [Postcontroller::class, 'show']);
+        Route::get('{post}', [Postcontroller::class, 'show']);
     });
 
+    // Escritor o Administrador
     Route::middleware(['throttle:api', 'auth:api', 'role:editor,admin'])->group(function(){
-        Route::post('/', [PostController::class, 'store']);
-        Route::put('{posts}', [Postcontroller::class, 'update']);
-        Route::delete('{posts}', [Postcontroller::class, 'destroy']);
-        Route::post('{posts}/restore', [Postcontroller::class, 'restore'])
+        Route::post('/', [PostController::class, 'store'])->middleware(['scopes:posts.write']);
+                                                                                                    // can:action, model
+        Route::put('{post}', [Postcontroller::class, 'update'])->middleware(['scopes:posts.write','can:update,post']);
+        Route::delete('{post}', [Postcontroller::class, 'destroy'])->middleware(['can:delete,post']);
+        Route::post('{post}/restore', [Postcontroller::class, 'restore'])
         ->middleware('scopes:posts.write');
     });
 });

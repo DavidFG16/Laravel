@@ -23,9 +23,7 @@ class PostController extends Controller
     {
         // La mala practica porque tenemos un Model.
         // return response()->json(DB::table("posts")->get());
-        $posts = Post::with('categories')->get();
-
-
+        $posts = Post::with('user', 'categories')->get();
         return $this->success(PostResource::collection($posts));
     }
 
@@ -37,6 +35,9 @@ class PostController extends Controller
         // $newPost = Post::create($request->only(['title','content','status'])); // Simplemente inserta sin validaciones, ni comparacion, ni actualizacion
         $data = $request->validated();
 
+        // en el Body no voy a recibir ID del usuario / Simpre se toma el token
+        $data['user_id'] = $request->user()->id;
+
         if($request->hasFile('cover_image')){
             $data['cover_image'] = $request->file('cover_image')->store('posts', 'public');
         }
@@ -46,6 +47,8 @@ class PostController extends Controller
         if(!empty($data['category_ids'])){
             $newPost->categories()->sync($data['category_ids']);
         }
+
+        $newPost->load(['user','categories']);
 
         return $this->success(new PostResource($newPost), 'Post creado correctamente', 201);
 
@@ -59,6 +62,7 @@ class PostController extends Controller
     {
         $result = Post::find($id);
         if ($result){
+            $result->load(['user','categories']);
             return $this->success(new PostResource($result),"Todo ok, como dijo el Pibeee");
         } else{
             return $this->error("Todo mal, como NO dijo el Pibeee", 404, ['id'=> 'no se encontro el recurso con el id']);
@@ -85,6 +89,7 @@ class PostController extends Controller
         if(array_key_exists('category_ids', $data)){
             $post->categories()->sync($data['category_ids'] ?? []);
         }
+        $post->load(['user', 'categories']);
         return $this->success(new PostController($post));
 
 
@@ -101,7 +106,13 @@ class PostController extends Controller
 
     public function restore(int $id): JsonResponse{
         $post = Post::onlyTrashed()->findOrFail($id);
+        if (!$post) {
+        //throw new ModelNotFoundException('Post no encontrado', 404);
+        throw new RecordsNotFoundException('Post no encontrado', 404);
+    }
+
         $post->restore();
+        $post->load(['user','categories']);
         return $this->success($post, 'Post restaurado correctamente');
     }
 }

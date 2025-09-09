@@ -21,7 +21,8 @@ class Post extends Model
         'published_at', 
         'cover_image',
         'tags',
-        'meta'
+        'meta',
+        'user_id'
     ];
 
     protected $casts = [
@@ -29,6 +30,11 @@ class Post extends Model
         'tags' => 'array',
         'meta' => 'array'
     ];
+
+
+    public function user(){
+        $this->belongsTo(User::class);
+    }
 
     public function categories(){
         //Tabla Pivote post_category
