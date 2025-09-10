@@ -1,12 +1,12 @@
 @component('mail::message')
-    # !HOLAAAA {{$user->name}}!
-    Tu registro fue tan exitoso como tu polla tio!
-    Ya puedes usar nuestra nitro nitro nitro nitrooooooooooo colosal API tio
+# ¡Hola, {{ $user->name }}!
 
-    @component('mail::button', ['url' => config('app.url')])
-        Ir a la basura
-    @endcomponent
+Tu registro fue exitoso. Ya puedes autenticarte y usar la API.
 
-    Gracias BASURITA, con mucho cariño,
-    {{config('app.name')}}
+@component('mail::button', ['url' => config('app.url')])
+Ir a la App
+@endcomponent
+
+Gracias,<br>
+{{ config('app.name') }}
 @endcomponent

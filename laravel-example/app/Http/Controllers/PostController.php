@@ -10,6 +10,8 @@ use Illuminate\Http\Request;
 use App\Models\Post;
 use Illuminate\Http\JsonResponse;
 use App\Http\Resources\PostResource;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\PostCreatedMail;
 // TODO: Eliminar
 use Illuminate\Support\Facades\DB;
 
@@ -49,6 +51,8 @@ class PostController extends Controller
         }
 
         $newPost->load(['user','categories']);
+
+        Mail::to($newPost->user->email)->queue(new PostCreatedMail($newPost));
 
         return $this->success(new PostResource($newPost), 'Post creado correctamente', 201);
 
@@ -90,7 +94,8 @@ class PostController extends Controller
             $post->categories()->sync($data['category_ids'] ?? []);
         }
         $post->load(['user', 'categories']);
-        return $this->success(new PostController($post));
+        Mail::to($post->user->email)->queue(new PostCreatedMail($post));
+        return $this->success(new PostResource($post));
 
 
     }
