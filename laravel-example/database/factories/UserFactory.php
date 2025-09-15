@@ -64,6 +64,6 @@ class UserFactory extends Factory
 
 
     public function withPosts(int $count = 3): static{
-        return $this->has(Post::fatory()->count($count), 'posts');
+        return $this->has(Post::factory()->count($count), 'posts');
     }
 }
