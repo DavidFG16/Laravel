@@ -5,9 +5,9 @@ namespace Tests\Feature;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
-use Tests\TestCase;
+use Tests\AuthTestCase;
 
-class CreatesUserTest extends TestCase
+class CreatesUserTest extends AuthTestCase
 {
 
     use RefreshDatabase;

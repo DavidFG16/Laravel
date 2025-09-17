@@ -5,9 +5,9 @@ namespace Tests\Feature;
 use App\Models\Post;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
-use Tests\TestCase;
+use Tests\AuthTestCase;
 
-class PostConfigTest extends TestCase
+class PostConfigTest extends AuthTestCase
 {
 
     public function test_fillable_y_casts_configurados(): void

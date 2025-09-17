@@ -4,11 +4,11 @@ namespace Tests\Feature;
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Str;
-use Tests\TestCase;
+use Tests\AuthTestCase;
 use App\Models\Category;
 use App\Models\Post;
 
-class CategoryTest extends TestCase
+class CategoryTest extends AuthTestCase
 {
     use RefreshDatabase;
     /**

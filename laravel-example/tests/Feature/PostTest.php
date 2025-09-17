@@ -5,9 +5,9 @@ namespace Tests\Feature;
 use App\Models\Post;
 use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Tests\TestCase;
+use Tests\AuthTestCase;
 
-class PostTest extends TestCase
+class PostTest extends AuthTestCase
 {
     use RefreshDatabase;
 
