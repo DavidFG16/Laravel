@@ -17,7 +17,7 @@ class AuthEndpointsTest extends AuthTestCase
     }
 
     protected function setupPassportClient():void{
-        Clint::created([
+        Client::created([
             'name' => 'Laravel'. Str::random(10),
             'secret' => 'test-secrets-for-testing-pro-mega-ultra',
             'provider'=> 'users',

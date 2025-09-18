@@ -15,6 +15,41 @@ class AuthController extends Controller
 {
     use ApiResponse;
 
+    /**
+     * 
+     * @OA\Post(
+     * path="/api/auth/login",
+     * tags=("Auth"),
+     * summary ="Login y con creacion de token"
+     * 
+     * @OA\RequestBody(
+     *      required_true,
+     *      @OA\JsonContent(
+     *      required ={"email", "password"},
+     *          @OA\Property(
+     *          property="email", type="string", format="email", example="user@gmail.com"
+     *          ),
+     *          @OA\Property(
+     *          property="password", type"string", minlenght=8, example="pa55Word1235."
+     *          )
+     *      ),
+     * @OA\Response(
+     *     response=200, description="OK",
+     *      @OA\JsonContent(
+     *      @OA\Property(property="status", type="string", example="success")
+     *      @OA\Property(property="message", type="string", example="Todo ok ccomo dijo el pibe")
+     *      @OA\Property(property="data", type="object", 
+     *          @OA\Property(property="token_type", type="string", example="Bearer")
+     *          @OA\Property(property="access_token", type="string", example="eyJ0121sadb..."),
+     *      ),
+     *      @OA\Property(property="", type="", example="")
+     *      ) 
+     * ),
+     * @OA\Response(response=401, description="Usuario o contraseña no invalidas")
+     * )
+     * )
+     * 
+     */
     function login(Request $request)
     {
         $data = $request->validate([
